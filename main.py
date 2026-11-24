@@ -12,18 +12,38 @@ escalation, punchline last. The line is 196 characters, inside the
 
 import os
 
-LINE = (
+SETUP = (
     "My manager approved my standing desk request by scheduling a "
     "45-minute meeting to discuss it, in a room with no chairs, and I "
-    "have stood through 6 of them. My knees have filed a complaint with HR."
+    "have stood through 6 of them. "
 )
+
+PUNCH = "My knees have filed a complaint with HR."
+
+LINE = SETUP + PUNCH
+
+TERMINATOR = "\n"
+
+
+def resolve_output_dir():
+    """Return the output directory, defaulting to /output."""
+    return os.environ.get("MAKEFUN_OUTPUT_DIR", "/output")
+
+
+def write_entry(out_dir, text):
+    """Write the entry line to entry.txt inside out_dir."""
+    os.makedirs(out_dir, exist_ok=True)
+    path = os.path.join(out_dir, "entry.txt")
+    with open(path, "w", encoding="utf-8", newline="") as f:
+        f.write(text + TERMINATOR)
+    return path
 
 
 def main() -> None:
-    out_dir = os.environ.get("MAKEFUN_OUTPUT_DIR", "/output")
-    os.makedirs(out_dir, exist_ok=True)
-    with open(os.path.join(out_dir, "entry.txt"), "w", encoding="utf-8") as f:
-        f.write(LINE + "\n")
+    if not LINE.strip():
+        raise ValueError("entry line is empty")
+    out_dir = resolve_output_dir()
+    write_entry(out_dir, LINE)
 
 
 if __name__ == "__main__":
